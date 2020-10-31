@@ -54,7 +54,7 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
     for strpath in git_repo_subdir.rglob('*'):
         path = pathlib.Path(strpath)
 
-        if path.is_file() and os.path.getsize(path) > 0:
+        if path.is_file():
             repo_path = path.relative_to(git_repo)
             all_rename_statements.append(f"{repo_path}==>{remove_prefix_if_present(str(repo_path), str_subdir)}")
 
