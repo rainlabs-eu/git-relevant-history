@@ -3,10 +3,9 @@
 """
 Extract enough git history to facilitate git blame and have each line correctly annotated
 
-Wipe all history that has no connection to current state of repository.
+Wipe all history that has no connection to the current state of the repository.
 
-Resulting repository is drop in replacement for the old dir, and has all history needed for
-typical git history use.
+The resulting repository is a drop-in replacement for the old directory and has all history needed for typical git history use.
 
 Usage:
   git-relevant-history [options] --source=<source_repo> --subdir=<subdir> --target=<target_repo>
