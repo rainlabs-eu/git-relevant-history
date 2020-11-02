@@ -99,11 +99,11 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
 def main():
     source_repo = pathlib.Path(arguments['--source']).expanduser().absolute()
     if not source_repo.is_dir():
-        logger.fatal(f"--source {source_repo} is not a directory")
+        logger.critical(f"--source {source_repo} is not a directory")
         raise SystemExit(-1)
 
     if not (source_repo / '.git').is_dir():
-        logger.fatal(f"--source {source_repo} is missing .git subdir - it need to be root of existing git repo.")
+        logger.critical(f"--source {source_repo} is missing .git subdir - it need to be root of existing git repo.")
         raise SystemExit(-1)
 
     subdir = arguments['--subdir']
@@ -112,7 +112,7 @@ def main():
 
     source_subdir = source_repo / subdir
     if not source_repo.is_dir():
-        logger.fatal(f"--source {source_repo / subdir} is not a directory")
+        logger.critical(f"--source {source_repo / subdir} is not a directory")
         raise SystemExit(-1)
 
     target_repo = pathlib.Path(arguments['--target']).expanduser().absolute()
@@ -120,7 +120,7 @@ def main():
         if arguments['--force']:
             logger.info(f"Will remove existing target repo at {target_repo} to store result.")
         else:
-            logger.fatal(f"Target directory {target_repo} already exists. Use --force to override")
+            logger.critical(f"Target directory {target_repo} already exists. Use --force to override")
             raise SystemExit(-1)
 
     logger.info(f"Will convert repo at {source_repo / subdir} into {target_repo} preserving file history")
