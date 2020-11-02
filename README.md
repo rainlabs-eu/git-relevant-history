@@ -1,30 +1,29 @@
 # git-relevant-history
 
-Extract software component from git repo into anew repo, taking complete relevant history with it.
+Extract software component from git repo into a new repo, taking complete relevant history with it.
 
 ## Background
 
-When software evolves its common for stable, established software component to be moved out of a git repository to facilitate wider reuse. One of the pain points of such move would be loosing git history, breaking possibility to use `git blame` or `git log` to uderstand what lead to current design.
+When software evolves, it is typical for a stable, established software component to be moved out of a git repository to facilitate more comprehensive reuse. One of the pain points of such a move would be losing git history, breaking the possibility of using `git blame` or `git log` to understand what led to the current design.
 
-Historically git filter-branch was used for such extracting, and https://github.com/newren/git-filter-repo is much faster alternative recomended by git now. Both tools work on static list of path patterns to preserve, so file renames in the past are usually "cut point"
+Historically git filter-branch was used for such extracting, and https://github.com/newren/git-filter-repo is a much faster alternative recommended by git now. Both tools work on a static list of path patterns to preserve, so file renames in the past are usually "cut point."
 
-This tool also starts with "what is subcomponent in current repo to extract?", but then it analyzes history of renames for any existing file, and creates a list of patterns for `git filter-repo` so that effectively the oldrepo/component becomes standalone repo with full history of every file, as long as git --follow catches the rename.
+This tool also starts with "what is subcomponent in the current repo to extract?" but then analyzes the history of renames for any existing file. Such a list is used to create a list of patterns for `git filter-repo` so that effectively the old repo/component becomes standalone repo with a full history of every file, as long as git --follow catches the rename.
 
-So from extracted component perspective the only history "lost" is the one that would require manual analysis of commits to find file merging / splitting.
+So from the extracted component perspective, the only history "lost" is one that would require manual analysis of commits to find file merging/splitting.
 
 
 ## Help
-For the tools is available via cmdline:
+Usage documentation for the tool is available via cmdline:
 
 git-relevant-history --help :
 
 ```
 Extract enough git history to facilitate git blame and have each line correctly annotated
 
-Wipe all history that has no connection to current state of repository.
+Wipe all history that has no connection to the current state of the repository.
 
-Resulting repository is drop in replacement for the old dir, and has all history needed for
-typical git history use.
+The resulting repository is a drop-in replacement for the old directory and has all history needed for typical git history use.
 
 Usage:
   git-relevant-history [options] --source=<source_repo> --subdir=<subdir> --target=<target_repo>
