@@ -3,10 +3,9 @@
 """
 Extract enough git history to facilitate git blame and have each line correctly annotated
 
-Wipe all history that has no connection to current state of repository.
+Wipe all history that has no connection to the current state of the repository.
 
-Resulting repository is drop in replacement for the old dir, and has all history needed for
-typical git history use.
+The resulting repository is a drop-in replacement for the old directory and has all history needed for typical git history use.
 
 Usage:
   git-relevant-history [options] --source=<source_repo> --subdir=<subdir> --target=<target_repo>
@@ -98,21 +97,39 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
 def main():
     source_repo = pathlib.Path(arguments['--source']).expanduser().absolute()
     if not source_repo.is_dir():
-        logger.fatal(f"{source_repo} is not a directory")
+        logger.critical(f"--source {source_repo} is not a directory")
+        raise SystemExit(-1)
+
+    if not (source_repo / '.git').is_dir():
+        logger.critical(f"--source {source_repo} is missing .git subdir - it need to be root of existing git repo.")
+        raise SystemExit(-1)
+
     subdir = arguments['--subdir']
     if not subdir.endswith('/'):
         subdir = subdir + '/'
+
+    source_subdir = source_repo / subdir
+    if not source_repo.is_dir():
+        logger.critical(f"--source {source_repo / subdir} is not a directory")
+        raise SystemExit(-1)
+
     target_repo = pathlib.Path(arguments['--target']).expanduser().absolute()
     if target_repo.exists() and not arguments['--only-specs']:
         if arguments['--force']:
             logger.info(f"Will remove existing target repo at {target_repo} to store result.")
         else:
-            logger.fatal(f"Target directory {target_repo} already exists. Use --force to override")
+            logger.critical(f"Target directory {target_repo} already exists. Use --force to override")
+            raise SystemExit(-1)
+
     logger.info(f"Will convert repo at {source_repo / subdir} into {target_repo} preserving file history")
 
     with tempfile.TemporaryDirectory() as str_workdir:
         workdir = pathlib.Path(str_workdir)
+
         workclone = workdir / 'repo'
+        logger.debug(f"All work would happen in fresh clone (under {workclone},"
+                     " that is requirement from git-filter branch"
+                     " and also protects current repo state and history.")
 
         workclone_cmd = ['git', 'clone',
                          '--branch', 'master',
