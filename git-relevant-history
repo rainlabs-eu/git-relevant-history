@@ -60,13 +60,13 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
 
             logger.debug(f"Including {repo_path} with history")
 
-            this_file_paths = {str(repo_path)}
+            unique_paths_of_current_file = {str(repo_path)}
 
             git_args = ["git",
                         "-C",
                         str(git_repo),
                         "log",
-                        "--pretty=format:",
+                        '--pretty=""',
                         "--name-only",
                         "--follow",
                         "--",
@@ -77,14 +77,13 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
 
                 for line in gitlog.splitlines(keepends=False):
                     if len(line) > 0:
-                        historical_path = line.strip()
-                        this_file_paths.add(historical_path)
+                        unique_paths_of_current_file.add(line.strip())
 
                 if logger.isEnabledFor(logging.DEBUG):
-                    this_file_paths_newlines = '\n\t'.join(this_file_paths)
+                    this_file_paths_newlines = '\n\t'.join(unique_paths_of_current_file)
                     logger.debug(f"\t{this_file_paths_newlines}\n")
 
-                all_filter_paths.extend(this_file_paths)
+                all_filter_paths.extend(unique_paths_of_current_file)
 
             except subprocess.CalledProcessError as e:
                 logger.warning(f"Failed to get hystorical names of {repo_path}, stdout: {e.output}, stderr: {e.stderr}")
