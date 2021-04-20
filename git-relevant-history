@@ -65,7 +65,7 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
                         "-C",
                         str(git_repo),
                         "log",
-                        '--pretty=""',
+                        '--pretty=format:',
                         "--name-only",
                         "--follow",
                         "--",
@@ -149,6 +149,7 @@ def main():
         logger.debug(f"Stored filter repo specs in {filter_repo_paths_file}")
 
         if arguments['--only-specs']:
+            logger.debug(f"Dumping contents of {filter_repo_paths_file}")
             print(filter_repo_paths_file.read_text())
             return
 
