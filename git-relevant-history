@@ -11,7 +11,7 @@ Usage:
   git-relevant-history [options] --source=<source_repo> --subdir=<subdir> --target=<target_repo>
 
 Where git repo at <source_repo> would be processed into <target_repo>, in a way that only files starting with
-<subdir> would be preserved.
+<subdir> would be preserved (<subdir> is relative to <source_repo>).
 
 
 Options:
