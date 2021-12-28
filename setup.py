@@ -10,9 +10,9 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setuptools.setup(
     name="git-relevant-history",
-    version="1.0.0",
+    version="1.0.1",
     description="Extract subproject with just the relevant history",
-    long_description=README,
+    long_description="README.md",
     long_description_content_type="text/markdown",
     url="https://github.com/rainlabs-eu/git-relevant-history",
     author="Rainlabs",
