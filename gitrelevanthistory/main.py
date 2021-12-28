@@ -21,9 +21,7 @@ Options:
   -v --verbose         print status messages
 
 """
-import glob
 import logging
-import os
 import pathlib
 import shutil
 import subprocess
@@ -95,6 +93,12 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
 
 
 def main():
+    arguments = docopt(__doc__)
+    if arguments['--verbose']:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+
     source_repo = pathlib.Path(arguments['--source']).expanduser().absolute()
     if not source_repo.is_dir():
         logger.critical(f"--source {source_repo} is not a directory")
@@ -175,10 +179,4 @@ def main():
 
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__)
-    if arguments['--verbose']:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
-
     main()
