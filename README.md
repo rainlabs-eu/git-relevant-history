@@ -38,6 +38,6 @@ Options:
   -f --force           remove <target_repo> if exists
   -v --verbose         print status messages
   ```
-  Calling when that repo is cloned:
+  Calling when git-relevant-history repo is cloned locally:
   
   ./gitrelevanthistory/main.py --source=<big-repo> --subdir=<subdir-of-big-repo> --target=<path-of-extracted-small-repo>
