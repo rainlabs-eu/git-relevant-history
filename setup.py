@@ -25,7 +25,7 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(exclude=("tests",)),
     include_package_data=True,
-    install_requires=[],
+    install_requires=["docopt"],
     entry_points={
         "console_scripts": [
             "git-relevant-history=gitrelevanthistory.main:main",
