@@ -16,7 +16,7 @@ So from the extracted component perspective, the only history "lost" is one that
 ## Help
 Usage documentation for the tool is available via cmdline:
 
-git-relevant-history --help :
+git-relevant-history --help:
 
 ```
 Extract enough git history to facilitate git blame and have each line correctly annotated
@@ -38,4 +38,6 @@ Options:
   -f --force           remove <target_repo> if exists
   -v --verbose         print status messages
   ```
+  Calling when that repo is cloned:
   
+  ./gitrelevanthistory/main.py --source=<big-repo> --subdir=<subdir-of-big-repo> --target=<path-of-extracted-small-repo>
