@@ -35,13 +35,6 @@ logging.basicConfig(format=log_format, level=logging.DEBUG)
 
 logger = logging.root
 
-
-def remove_prefix_if_present(text, prefix):
-    if text.startswith(prefix):
-        return text[len(prefix):]
-    return text
-
-
 def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typing.List[str]:
     git_repo_subdir = git_repo / str_subdir
     logger.debug(f"Processing files in {git_repo_subdir}")
@@ -53,7 +46,6 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
 
         if path.is_file():
             repo_path = path.relative_to(git_repo)
-            all_rename_statements.append(f"{repo_path}==>{remove_prefix_if_present(str(repo_path), str_subdir)}")
 
             logger.debug(f"Including {repo_path} with history")
 
@@ -89,7 +81,7 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
     if logger.isEnabledFor(logging.DEBUG):
         all_rename_statements_newlines = '\n\t'.join(all_rename_statements)
         logger.debug(f"All renames:\n\t{all_rename_statements_newlines}")
-    return all_filter_paths + all_rename_statements
+    return all_filter_paths
 
 
 def main():
@@ -166,6 +158,36 @@ def main():
                        ]
         logger.debug(f"Calling {' '.join(filter_args)}")
         subprocess.check_call(filter_args,
+                              universal_newlines=True)
+
+        wipe_all_args = ["git",
+                         "-C",
+                         str(workclone),
+                         "rm",
+                         "-rf",
+                         "."
+                         ]
+        subprocess.check_call(wipe_all_args,
+                              universal_newlines=True)
+
+        restore_subdir_args = ["git",
+                               "-C",
+                               str(workclone),
+                               "checkout",
+                               "HEAD",
+                               "--",
+                               subdir
+                               ]
+        subprocess.check_call(restore_subdir_args,
+                              universal_newlines=True)
+
+        subprocess.check_call(["git",
+                               "-C",
+                               str(workclone),
+                               "commit",
+                               "-m",
+                               "Remove not directly related content from the repository",
+                               ],
                               universal_newlines=True)
 
         logger.debug(f"Moving final result from {workclone} to {target_repo}")
