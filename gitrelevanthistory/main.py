@@ -55,11 +55,12 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
                         "-C",
                         str(git_repo),
                         "log",
-                        '--pretty=format:',
+                        "--pretty=format:",
                         "--name-only",
                         "--follow",
                         "--",
                         str(repo_path)]
+            logger.debug(f"Calling {' '.join(git_args)}")
             try:
                 gitlog = subprocess.check_output(git_args,
                                                  universal_newlines=True)
@@ -86,21 +87,21 @@ def build_git_filter_path_spec(git_repo: pathlib.Path, str_subdir: str) -> typin
 
 def main():
     arguments = docopt(__doc__)
-    if arguments['--verbose']:
+    if arguments["--verbose"]:
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
 
-    source_repo = pathlib.Path(arguments['--source']).expanduser().absolute()
+    source_repo = pathlib.Path(arguments["--source"]).expanduser().absolute()
     if not source_repo.is_dir():
         logger.critical(f"--source {source_repo} is not a directory")
         raise SystemExit(-1)
 
-    if not (source_repo / '.git').is_dir():
+    if not (source_repo / ".git").is_dir():
         logger.critical(f"--source {source_repo} is missing .git subdir - it need to be root of existing git repo.")
         raise SystemExit(-1)
 
-    subdir = arguments['--subdir']
+    subdir = arguments["--subdir"]
     if not subdir.endswith('/'):
         subdir = subdir + '/'
 
@@ -109,9 +110,9 @@ def main():
         logger.critical(f"--source {source_repo / subdir} is not a directory")
         raise SystemExit(-1)
 
-    target_repo = pathlib.Path(arguments['--target']).expanduser().absolute()
-    if target_repo.exists() and not arguments['--only-specs']:
-        if arguments['--force']:
+    target_repo = pathlib.Path(arguments["--target"]).expanduser().absolute()
+    if target_repo.exists() and not arguments["--only-specs"]:
+        if arguments["--force"]:
             logger.info(f"Will remove existing target repo at {target_repo} to store result.")
         else:
             logger.critical(f"Target directory {target_repo} already exists. Use --force to override")
@@ -122,15 +123,15 @@ def main():
     with tempfile.TemporaryDirectory() as str_workdir:
         workdir = pathlib.Path(str_workdir)
 
-        workclone = workdir / 'repo'
+        workclone = workdir / "repo"
         logger.debug(f"All work would happen in fresh clone (under {workclone},"
                      " that is requirement from git-filter branch"
                      " and also protects current repo state and history.")
 
-        workclone_cmd = ['git', 'clone',
-                         '--branch', 'master',
-                         '--single-branch',
-                         'file://' + str(source_repo),
+        workclone_cmd = ["git", "clone",
+                         "--branch", "master",
+                         "--single-branch",
+                         "file://" + str(source_repo),
                          str(workclone)]
         logger.debug(f"Calling {' '.join(workclone_cmd)}")
         subprocess.check_call(workclone_cmd)
@@ -144,7 +145,7 @@ def main():
 
         logger.debug(f"Stored filter repo specs in {filter_repo_paths_file}")
 
-        if arguments['--only-specs']:
+        if arguments["--only-specs"]:
             logger.debug(f"Dumping contents of {filter_repo_paths_file}")
             print(filter_repo_paths_file.read_text())
             return
@@ -167,6 +168,7 @@ def main():
                          "-rf",
                          "."
                          ]
+        logger.debug(f"Calling {' '.join(wipe_all_args)}")
         subprocess.check_call(wipe_all_args,
                               universal_newlines=True)
 
@@ -178,16 +180,32 @@ def main():
                                "--",
                                subdir
                                ]
+        logger.debug(f"Calling {' '.join(restore_subdir_args)}")
         subprocess.check_call(restore_subdir_args,
                               universal_newlines=True)
 
-        subprocess.check_call(["git",
-                               "-C",
-                               str(workclone),
-                               "commit",
-                               "-m",
-                               "Remove not directly related content from the repository",
-                               ],
+        check_if_repo_is_dirty_args = ["git",
+                                       "-C",
+                                       str(workclone),
+                                       "diff-index",
+                                       "--quiet",
+                                       "--cached",
+                                       "HEAD",
+                                       "--"
+                                       ]
+        logger.debug(f"Calling {' '.join(check_if_repo_is_dirty_args)}")
+        is_dirty = subprocess.call(check_if_repo_is_dirty_args, universal_newlines=True)
+
+        if is_dirty:
+            remove_unrelated_content_args = ["git",
+                                             "-C",
+                                             str(workclone),
+                                             "commit",
+                                             "-m",
+                                             "Remove not directly related content from the repository",
+                                             ]
+            logger.debug(f"Calling {' '.join(remove_unrelated_content_args[:-1])} \"{remove_unrelated_content_args[-1]}\"")
+            subprocess.check_call(remove_unrelated_content_args,
                               universal_newlines=True)
 
         logger.debug(f"Moving final result from {workclone} to {target_repo}")
